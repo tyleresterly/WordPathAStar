@@ -1,91 +1,90 @@
+/*************************************************************/
+// Tyler Esterly
+
+// This class contains variables and methods used to build nodes
+// that will be inserted into a graph.
+/*************************************************************/
+
+
 import java.util.ArrayList;
 
 public class Node
 {
-  int levDist;
+  int cost = 0;
+  Node parent;
+  ArrayList<Node> shorter;
+  ArrayList<Node> longer;
+  ArrayList<Node> equal;
   private String word;
   private int wordLength;
-  ArrayList<Node> shorter = new ArrayList<>();
-  ArrayList<Node> longer = new ArrayList<>();
-  ArrayList<Node> equal = new ArrayList<>();
 
+  /***********************************************/
+  // Inputs:
+  //  String - word: the word that will be
+  //                 contained in the node
+  //
+  // Constructor for the Node class
+  /**********************************************/
   public Node(String word)
   {
     this.word = word;
     this.wordLength = word.length();
+    shorter = new ArrayList<>();
+    longer = new ArrayList<>();
+    equal = new ArrayList<>();
   }
 
+  // Returns the node's word
   public String getWord()
   {
     return this.word;
   }
-
+  // Returns the length of the node's contained word
   public int getWordLength()
   {
     return this.wordLength;
   }
 
+
+  /***********************************************/
+  // Inputs:
+  //  Node - node: node to be added to the
+  //               the list of neighbors
+  //
+  // Adds a node to the calling node's list of
+  // neighbors that are one character larger than
+  // itself
+  /**********************************************/
   public void addLonger(Node node)
   {
     this.longer.add(node);
   }
 
+  /***********************************************/
+  // Inputs:
+  //  Node - node: node to be added to the
+  //               the list of neighbors
+  //
+  // Adds a node to the calling node's list of
+  // neighbors that are one character shorter than
+  // itself
+  /**********************************************/
   public void addShorter(Node node)
   {
     this.shorter.add(node);
   }
 
+  /***********************************************/
+  // Inputs:
+  //  Node - node: node to be added to the
+  //               the list of neighbors
+  //
+  // Adds a node to the calling node's list of
+  // neighbors that are of equal length
+  /**********************************************/
   public void addEqual(Node node)
   {
     this.equal.add(node);
-  }
-
-
-  public static boolean oneDeleteFrom(String word1, String word2)
-  {
-    if(word1.equals(word2))
-      return false;
-
-    int offset = 0;
-    int wordLength = word2.length();
-    //System.out.println(word1 + ", " + word2);
-
-    for(int i = 0; i < wordLength; i++){
-      if(word1.charAt(i + offset) != word2.charAt(i))
-      {
-        offset++;
-        i--;
-      }
-      if(offset > 1)
-        return false;
-    }
-    return true;
-  }
-
-  public static boolean oneSwapFrom(String word1, String word2)
-  {
-    if(word1.equals(word2))
-      return false;
-
-    int check = 0;
-    int wordLength = word1.length();
-    for(int i = 0; i < wordLength; i++){
-      if(word1.charAt(i) != word2.charAt(i))
-        check++;
-      if(check > 1)
-        return false;
-    }
-    return true;
-
-  }
-
-
-
-
-  public static void main(String args[]){
-    Node node1 = new Node("banana");
-    Node node2 = new Node("ffnana");
-    //System.out.println(node1.oneSwapFrom(node2));
   }
 
 

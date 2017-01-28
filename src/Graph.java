@@ -1,3 +1,12 @@
+/*************************************************************/
+// Tyler Esterly
+
+// This class contains variables and methods used to build a
+// graph of nodes containing Strings.
+/*************************************************************/
+
+
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.io.*;
@@ -7,8 +16,20 @@ import java.nio.file.*;
 
 public class Graph
 {
-  private final int MAX_WORD_LENGTH = 15;
-  private HashMap<Integer, ArrayList<Node>> graph = new HashMap<>();
+  static final int MAX_WORD_LENGTH = 15;
+  HashMap<Integer, ArrayList<Node>> graph = new HashMap<>();
+
+
+
+  /***********************************************/
+  // Inputs:
+  //  String - dictionary: name of the dictionary file
+  //           to be used
+  //
+  // Constructor for the Graph class, also creates
+  // a number of lists based on whatever the maximum word
+  // length is set to be
+  /**********************************************/
 
   public Graph(String dictionary)
   {
@@ -17,16 +38,33 @@ public class Graph
       ArrayList<Node> wordList = new ArrayList<>();
       graph.put(i, wordList);
     }
-    Path file = Paths.get(dictionary);
+    readDictionary(dictionary);
 
-    try(InputStream in = Files.newInputStream(file);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(in)))
+
+  }
+
+  /***********************************************/
+  // Inputs:
+  //  String - dictionary: name of the dictionary file
+  //           to be used
+  //
+  // Reads all the Strings from the given dictionary
+  // file
+  /**********************************************/
+  public void readDictionary(String dictionary)
+  {
+
+    Path file = Paths.get(dictionary);
+    try(InputStream in = Files.newInputStream(file))
     {
-      String line;
-      while ((line = reader.readLine()) != null)
+      Scanner sc = new Scanner(in);
+
+      String word;
+      while (sc.hasNext())
       {
-        Node node = new Node(line);
-        this.addNode(node);
+        word = sc.next().toLowerCase();
+        Node newNode = new Node(word);
+        this.graph.get(word.length()).add(newNode);
       }
     }
     catch(IOException ex)
@@ -36,50 +74,72 @@ public class Graph
 
   }
 
-  public void addNode(Node newNode)
+  /***********************************************/
+  // Inputs:
+  //  String - word1/word2: Strings to be compared
+  //
+  // compares two string and sees if they are a delete
+  // away from each other. Can also be used in reverse
+  // to see if Strings are one add from each other.
+  /**********************************************/
+
+  public static boolean oneDeleteFrom(String word1, String word2)
   {
-    int wordSize = newNode.getWordLength();
-    String word1 = newNode.getWord();
+    if(word1.equals(word2))
+      return false;
 
-    this.graph.get(wordSize).add(newNode);
-    if(wordSize != 1)
-    {
-      for (Node node : graph.get(wordSize - 1))
+    int offset = 0;
+    int wordLength = word2.length();
+    //System.out.println(word1 + ", " + word2);
+    for(int i = 0; i < wordLength; i++){
+      if(word1.charAt(i + offset) != word2.charAt(i))
       {
-        String word2 = node.getWord();
-        if (newNode.oneDeleteFrom(word1,word2))
-        {
-          node.addLonger(newNode);
-          newNode.addShorter(node);
-        }
-
+        offset++;
+        i--;
+      }
+      if(offset > 1)
+      {
+        return false;
       }
     }
-    for(Node node : graph.get(wordSize))
-    {
-      String word2 = node.getWord();
+    return true;
+  }
 
-      if(Node.oneSwapFrom(word1,word2))
+  /***********************************************/
+  // Inputs:
+  //  String - word1/word2: Strings to be compared
+  // Outputs:
+  //  Boolean - True if the strings are a swap from
+  //            eachother
+  // compares two string and sees if they are a swap
+  // away from each other.
+  /**********************************************/
+  public static boolean oneSwapFrom(String word1, String word2)
+  {
+    if(word1.equals(word2))
+      return false;
+
+    int check = 0;
+    int wordLength = word1.length();
+    for(int i = 0; i < wordLength; i++){
+      if(word1.charAt(i) != word2.charAt(i))
       {
-        node.addEqual(newNode);
-        newNode.addEqual(node);
+        check++;
+      }
+      if(check > 1)
+      {
+        return false;
       }
     }
-    if(wordSize != MAX_WORD_LENGTH)
-    {
-      for (Node node : graph.get(wordSize + 1))
-      {
-        String word2 = node.getWord();
-        if (Node.oneDeleteFrom(word2,word1))
-        {
-          node.addShorter(newNode);
-          newNode.addLonger(node);
-        }
-      }
-    }
+    return true;
 
   }
 
+
+  /***********************************************/
+  // Prints every word contained in the graph,
+  // as well as it's neighbors
+  /**********************************************/
   public void printGraph()
   {
     for (ArrayList<Node> list : this.graph.values())
@@ -108,6 +168,9 @@ public class Graph
     }
   }
 
+  /***********************************************/
+  // Prints the number of words of all sizes.
+  /**********************************************/
   public void printSizes()
   {
     int i = 1;
@@ -116,19 +179,27 @@ public class Graph
       System.out.println("Words of Length " + i + ": " + list.size());
       i++;
     }
-
-
   }
 
-  public static void main(String args[]){
-    long startTime = System.currentTimeMillis();
-    Graph graph = new Graph("dict.txt");
-    long endTime   = System.currentTimeMillis();
-    long totalTime = endTime - startTime;
-    System.out.println("Running time is :" + totalTime/1000.0 + " seconds.");
-    graph.printSizes();
+  /***********************************************/
+  // Inputs:
+  //  String - word: Strings whose existent is being
+  //                 questioned
+  // Outputs:
+  //  Boolean - True if the string is contained in the//
+  //            dictionary
+  // Checks whether or not the given string exists
+  // in the dictionary
+  /**********************************************/
+  public boolean checkForWord(String word)
+  {
+    int wordSize = word.length();
+    for(Node node : graph.get(wordSize))
+    {
+      if (node.getWord().equals(word))
+        return true;
+    }
+    return false;
+
   }
-
-
-
 }
